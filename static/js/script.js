@@ -72,11 +72,13 @@ let layout = {
         y: 0.5,
         yref: 'paper',
         font: {
-            family: 'Arial, sans-serif',
             size: 20,
-            color: 'grey',
         }
     },
+    font: {
+        family: 'Roboto',
+        color: '#000000'
+      },
     shapes: [
         {
             type: 'line',
