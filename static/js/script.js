@@ -201,10 +201,10 @@ function processData(rawData) {
 }
 
 function makePlotly() {
-    Plotly.newPlot('myDiv', [getData(2015)], getLayout(2015));
-    //Plotly.newPlot('myDiv1', [getData(document.getElementById("to").value)], getLayout(document.getElementById("to").value));
-    let label1 = document.querySelectorAll('#myDiv g.g-gtitle > text.gtitle')[0]
-    //let label2 = document.querySelectorAll('#myDiv1 g.g-gtitle > text.gtitle')[0]
+    Plotly.newPlot('canvas', [getData(2015)], getLayout(2015));
+    //Plotly.newPlot('canvas1', [getData(document.getElementById("to").value)], getLayout(document.getElementById("to").value));
+    let label1 = document.querySelectorAll('#canvas g.g-gtitle > text.gtitle')[0]
+    //let label2 = document.querySelectorAll('#canvas1 g.g-gtitle > text.gtitle')[0]
 
     label1.innerHTML += " - season " + 2015
    // label2.innerHTML += " - season " + document.getElementById("to").value
@@ -232,7 +232,8 @@ function getLayout(season) {
 
 function getData(season) {
     let formattedData = JSON.parse(JSON.stringify(trace1));
-
+    console.log(season)
+    console.log(data[season])
     Object.keys(data[season]).sort().forEach((team) => {
         let x = data[season][team].expected / data[season][team].total;
         let y = data[season][team].won / data[season][team].total;

@@ -1,29 +1,27 @@
-from flask import Flask, render_template
-import csv
-import json
+from flask import Flask, render_template, request
+import pandas as pd
+import dao
 
 app = Flask(__name__)
 
 @app.route('/getData')
 def getData():
-  csvFilePath = r'nba_elo.csv'
-  # create a dictionary
-  data = []
-    
-  # Open a csv reader called DictReader
-  with open(csvFilePath, encoding='utf-8') as csvf:
-      csvReader = csv.DictReader(csvf)
-        
-      # Convert each row into a dictionary
-      # and add it to data
-      for rows in csvReader:
-          data.append(rows)
-  print(len(data))
-  return json.dumps(data)
+  df = dao.getWinDeltaData()
+  return df.to_json(orient='records')
+
+@app.route('/getTeams')
+def getTeams():
+  df = dao.getTeams()
+  return df.to_json(orient='records')
+
+@app.route('/getTeamInfo')
+def getTeamInfo():
+  df = dao.getTeamInfo(request.args.get('team'), request.args.get('season'))
+  return df.to_json(orient='records')
 
 @app.route('/')
 def hello():
-    return render_template("index.html")
+    return render_template("dashboard.html")
 
 if __name__ == "__main__":
   app.run(debug=True)

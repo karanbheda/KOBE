@@ -1,6 +1,6 @@
 /* Light mode */
 [data-theme="light"] {
-    --body-bg: #f0f2f5 !important;
+    --body-bg: white !important;
     --body-color: #000000;
     --bs-font-sans-serif: "Roboto", Helvetica, Arial, sans-serif;
     --link-hover-color: #e96f1d;
@@ -77,8 +77,6 @@ ul.horizontal li a.active {
     background-clip: border-box;
     border: 0 solid rgba(0, 0, 0, 0.125);
     border-radius: 0.75rem;
-    margin: auto 2rem;
-    padding: 0 2rem;
     height: 90vh;
 }
 
@@ -101,4 +99,18 @@ ul.horizontal li a.active {
     margin-bottom: 0;
     border-bottom: 0 solid rgba(0, 0, 0, 0.125);
     margin-bottom: 2rem
+}
+
+.img-circle { border-radius: 50%; }
+
+.team-icon-db {
+    height: 10rem;
+}
+
+.team-list-db {
+    margin-left: 2rem;
+}
+
+.team-list-db:first-child {
+    margin-left: 0px;
 }
