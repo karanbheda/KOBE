@@ -17,11 +17,19 @@ def getTeams():
 @app.route('/getTeamInfo')
 def getTeamInfo():
   df = dao.getTeamInfo(request.args.get('team'), request.args.get('season'))
-  return df.to_json(orient='records')
+  result = {}
+  result["matches"] = df.to_dict('records')
+  result["total"] = len(df)
+  result["won"] = len(df.query('score1 > score2'))
+  return result
 
 @app.route('/')
-def hello():
+def home():
     return render_template("dashboard.html")
+
+@app.route('/temp')
+def temp():
+    return render_template("index.html")
 
 if __name__ == "__main__":
   app.run(debug=True)
