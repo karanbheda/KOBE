@@ -23,6 +23,16 @@ def getTeamInfo():
   result["won"] = len(df.query('score1 > score2'))
   return result
 
+@app.route('/getTeamEloData')
+def getTeamEloData():
+  df = dao.getTeamEloData(request.args.get('team'))
+  print(df)
+  result = {}
+  for i in list(df):
+    result[i] = df[i].tolist()
+
+  return result
+
 @app.route('/')
 def home():
     return render_template("dashboard.html")

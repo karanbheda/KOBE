@@ -55,13 +55,74 @@ function loadTeamInfo(elem) {
         html += '<ul class="list-group list-group-flush">'
         let i = 0;
         data.matches.forEach(match => {
-            html += '<li class="list-group-item">' + match.date + ' ' + match.score1 + ' - ' + match.score2 + ' ' + match.team + '</li>'
+            html += '<li class="list-group-item">' + new Date(match.date).toDateString() + ' ' + match.score1 + ' - ' + match.score2 + ' ' + match.team + '</li>'
         });
 
-        html += '</ul></div><div class="col-md- col-lg-8 px-md-8"></div></div>'
+        html += '</ul></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div></div>'
 
         document.getElementById("canvas").innerHTML = html
+        document.getElementById("canvas-title").innerHTML = team
+        data.team = team
+        loadWinLossPie(data);
+        loadEloPlot(team);
     })
+}
+
+
+function loadEloPlot(team) {
+    fetchAsync("http://127.0.0.1:5000/getTeamEloData?team=" + team).then(data => {
+        let layout = {
+            title: 'Trending records for each NBA Team',
+            legend: {
+                y: 0.5,
+                traceorder: 'reversed',
+                font: { size: 16 },
+                yref: 'paper'
+            },
+            xaxis: {
+                range: ["2010-01-01", "2022-03-01"],
+                autorange: false
+            },
+        };
+
+        let plot = {
+            x: data.x,
+            y: data.y,
+            mode: 'lines',
+            name:team,
+            connectgaps: true,
+            line: {
+                color: 'rgb(128, 0, 128)',
+                width: 1
+            },
+            isColored: false,
+            totalMatches: 0,
+            matchesWon: 0,
+        };
+
+        console.log(plot)
+        Plotly.newPlot('elo-plot', [plot], layout);
+    })
+    
+}
+
+function loadWinLossPie(data) {
+    let pieData = [{
+        values: [data.won, data.total - data.won],
+        labels: ['Matches won', 'Matches lost'],
+        marker: {
+            colors: ['rgb(44, 160, 44)', 'rgb(175, 51, 21)']
+        },
+        type: 'pie'
+    }];
+
+    let pieLayout = {
+        title: 'Win/Loss stats for Team ' + data.team,
+        height: 400,
+        width: 500
+    };
+
+    Plotly.newPlot('win-loss-pie', pieData, pieLayout);  
 }
 
 function seasonDropDown() {
