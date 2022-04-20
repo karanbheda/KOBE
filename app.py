@@ -26,12 +26,39 @@ def getTeamInfo():
 @app.route('/getTeamEloData')
 def getTeamEloData():
   df = dao.getTeamEloData(request.args.get('team'))
-  print(df)
+
   result = {}
   for i in list(df):
     result[i] = df[i].tolist()
 
   return result
+
+@app.route('/getAllElo')
+def getAllElo():
+  result = {}
+  for index, row in dao.getTeams().iterrows():
+    df = dao.getTeamEloData(row['team'])
+    elo = {}
+    for i in list(df):
+      elo[i] = df[i].tolist()
+    result[row['team']] = elo
+  
+  return result
+
+@app.route('/getPerformanceStats')
+def getPerformanceStats():
+  season = request.args.get('season')
+  teams = request.args.get('teams')
+  result = {}
+  for team in teams.split(","):
+    df = dao.getPerformanceStats(team, season)
+    elo = {}
+    for i in list(df):
+      elo[i] = df[i].tolist()[0]
+    result[team] = elo
+  
+  return result
+
 
 @app.route('/')
 def home():

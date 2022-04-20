@@ -19,7 +19,7 @@ function loadDashboard() {
 }
 
 function loadAnalysis() {
-    //loadTeams();
+    loadEloAnalysis();
     $(".active").removeClass("active")
     $("#menu-analysis").addClass("active");
 }
@@ -44,12 +44,13 @@ function loadTeams() {
 
         html += "</div>"
         document.getElementById("canvas").innerHTML = html
+        document.getElementById("canvas-title").innerHTML = "Teams"
     })
 }
 
 function loadTeamInfo(elem) {
     let team = elem.id
-    let html = '<div class="row"><div class="col-md-4 col-lg-4 px-md-4">'+seasonDropDown()
+    let html = '<div class="row"><div class="col-md-4 col-lg-4 px-md-4">' + seasonDropDown()
     fetchAsync("http://127.0.0.1:5000/getTeamInfo?team=" + team + "&season=2015").then(data => {
         document.getElementById("canvas").innerHTML = ""
         html += '<ul class="list-group list-group-flush">'
@@ -89,21 +90,30 @@ function loadEloPlot(team) {
             x: data.x,
             y: data.y,
             mode: 'lines',
-            name:team,
+            name: team,
             connectgaps: true,
             line: {
                 color: 'rgb(128, 0, 128)',
-                width: 1
+                width: 1,
+                dash: '0px 5200000px'
             },
             isColored: false,
             totalMatches: 0,
             matchesWon: 0,
         };
 
-        console.log(plot)
-        Plotly.newPlot('elo-plot', [plot], layout);
+          
+        Plotly.plot('elo-plot', [plot], layout).then(function () {
+            return Plotly.animate('graph',
+                [{ data: [{ 'line.dash': '5200000px 0px' }] }],
+                {
+                    frame: { duration: 50000, redraw: false },
+                    transition: { duration: 50000 }
+                }
+            );
+        });
     })
-    
+
 }
 
 function loadWinLossPie(data) {
@@ -111,7 +121,7 @@ function loadWinLossPie(data) {
         values: [data.won, data.total - data.won],
         labels: ['Matches won', 'Matches lost'],
         marker: {
-            colors: ['rgb(44, 160, 44)', 'rgb(175, 51, 21)']
+            colors: ['rgb(75, 159, 75)', 'rgb(195, 83, 57)']
         },
         type: 'pie'
     }];
@@ -122,7 +132,7 @@ function loadWinLossPie(data) {
         width: 500
     };
 
-    Plotly.newPlot('win-loss-pie', pieData, pieLayout);  
+    Plotly.newPlot('win-loss-pie', pieData, pieLayout);
 }
 
 function seasonDropDown() {
@@ -134,28 +144,201 @@ function seasonDropDown() {
     return dropdown
 }
 
+// TODO - make year selectable
+
 /************************************************** */
 
 /************ Analysis **********************/
-function loadTeams() {
-    fetchAsync("http://127.0.0.1:5000/getTeams").then(teams => {
-        document.getElementById("canvas").innerHTML = ""
-        let html = ""
+let selectedTeams = new Set()
+function loadEloAnalysis() {
+    fetchAsync("http://127.0.0.1:5000/getAllElo").then(elo => {
+        document.getElementById("canvas").innerHTML = '<div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="all-elo-plot"></div></div><button type="button" class="btn btn-default" onclick="loadNextAnalysis()">Next</button></div>'
+
+        let layout = {
+            title: 'Trending records for each NBA Team',
+            legend: {
+                y: 0.5,
+                traceorder: 'reversed',
+                font: { size: 16 },
+                yref: 'paper'
+            },
+            xaxis: {
+                range: ["2010-01-01", "2022-03-01"],
+                autorange: false
+            },
+        };
+
+        let plot = {
+            x: [],
+            y: [],
+            mode: 'lines',
+            name: '',
+            connectgaps: true,
+            line: {
+                color: 'rgb(128, 0, 128)',
+                width: 1
+            },
+            isColored: false,
+            totalMatches: 0,
+            matchesWon: 0
+        };
+
+        let allPlots = []
         let i = 0;
-        teams.forEach(team => {
-            if (i % 9 == 0) {
-                if (i != 0) { html += "</div>" }
-                html += "<div class=\"row\">"
+
+        Object.keys(elo).forEach((team, index) => {
+            let plotCopy = JSON.parse(JSON.stringify(plot))
+            plotCopy.x = elo[team].x;
+            plotCopy.y = elo[team].y;
+            plotCopy.name = team;
+
+            if (i > 4) {
+                plotCopy.visible = 'legendonly'
+            } else {
+                selectedTeams.add(team)
             }
 
-            html += "<div class=\"col-md-1 col-lg-1 px-md-1 team-list-db\" id=\"" + team['team'] + "\" onclick=\"loadTeamInfo(" + team['team'] + ")\"><img class=\"img-circle team-icon-db\" src=\"../static/imgs/GSW.png\"/></div>"
+            allPlots.push(plotCopy)
             i++;
         });
-
-        html += "</div>"
-        document.getElementById("canvas").innerHTML = html
+        Plotly.newPlot('all-elo-plot', allPlots, layout);
+        document.getElementById("canvas-title").innerHTML = "In-Depth Analysis"
     })
 }
+
+function loadNextAnalysis() {
+    fetchAsync("http://127.0.0.1:5000/getPerformanceStats?season=2015&teams=" + Array.from(selectedTeams).join(",")).then(perfData => {
+        document.getElementById("canvas").innerHTML = '<div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="perf-plot"></div></div></div><div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="minute-plot"></div></div></div>'
+
+        let layout = {
+            xaxis: {
+                range: [0, 1]
+            },
+            yaxis: {
+                range: [0.05, 0.95]
+            },
+            legend: {
+                y: 0.5,
+                yref: 'paper',
+                font: {
+                    family: 'Arial, sans-serif',
+                    size: 20,
+                    color: 'grey',
+                }
+            },
+            shapes: [
+                {
+                    type: 'line',
+                    xref: 'paper',
+                    x0: 0,
+                    y0: 0.5,
+                    x1: 1,
+                    y1: 0.5,
+                    line: {
+                        color: 'rgba(255, 0, 0, 0.2)',
+                        width: 4,
+                        dash: 'dot'
+                    }
+                },
+                {
+                    type: 'line',
+                    xref: 'paper',
+                    x0: 0.5,
+                    y0: 0,
+                    x1: 0.5,
+                    y1: 1,
+                    line: {
+                        color: 'rgba(255, 0, 0, 0.2)',
+                        width: 4,
+                        dash: 'dot'
+                    }
+                }
+            ],
+            // images: [
+            //     {
+            //         "source": "imgs/gsw.png",
+            //         "xref": "paper",
+            //         "yref": "paper",
+            //         "x": 0.5,
+            //         "y": 0.5,
+            //         "sizex": 0.05,
+            //         "sizey": 0.05,
+            //         "xanchor": "right",
+            //         "yanchor": "bottom"
+            //     },
+            // ],
+
+            title: 'Actual v/s Expected Performance',
+            annotations: [{
+                xref: 'paper',
+                yref: 'paper',
+                x: 0.25,
+                xanchor: 'right',
+                y: 0.85,
+                yanchor: 'bottom',
+                text: 'Exceeding expectations',
+                showarrow: false
+            }, {
+                xref: 'paper',
+                yref: 'paper',
+                x: 0.85,
+                xanchor: 'right',
+                y: 0.85,
+                yanchor: 'bottom',
+                text: 'Performing as expected',
+                showarrow: false
+            },
+            {
+                xref: 'paper',
+                yref: 'paper',
+                x: 0.25,
+                xanchor: 'right',
+                y: 0.20,
+                yanchor: 'bottom',
+                text: 'Performing as expected',
+                showarrow: false
+            },
+            {
+                xref: 'paper',
+                yref: 'paper',
+                x: 0.85,
+                xanchor: 'right',
+                y: 0.20,
+                yanchor: 'bottom',
+                text: 'Under performing',
+                showarrow: false
+            }]
+        };
+
+        let plot = {
+            x: [],
+            y: [],
+            mode: 'markers+text',
+            type: 'scatter',
+            name: 'Team A',
+            text: [],
+            textposition: 'top center',
+            textfont: {
+                family: 'Raleway, sans-serif'
+            },
+            marker: {
+                size: 12,
+                color: ["Red", "Gray", "Green", "Blue", "Maroon", "Black", "Turquoise", "Yellow", "Silver", "Gold", "Crimson", "Goldenrod", "Pink", "Purple", "Navy", "DarkRed", "DarkGreen", "Lime", "Bisque", "Orange", "LightGrey", "MidnightBlue", "DodgerBlue", "OrangeRed", "Coral", "Olive", "DarkCyan", "Cyan", "DarkSlateGray", "Plum"],
+                colorscale: 'Jet',
+            }
+        };
+
+        Object.keys(perfData).forEach((team, index) => {
+            plot.x.push(perfData[team].x)
+            plot.y.push(perfData[team].y)
+            plot.text.push(team)
+        });
+        Plotly.newPlot('perf-plot', [plot], layout);
+    })
+}
+
+//TODO - add on click for legends and update selected
+//TODO - add range slider to 2 line graphs
 /***************************************** */
 async function fetchAsync(url) {
     let response = await fetch(url);
