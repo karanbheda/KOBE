@@ -1,3 +1,29 @@
+let selectorOptions = {
+    buttons: [{
+        step: 'month',
+        stepmode: 'backward',
+        count: 1,
+        label: '1m'
+    }, {
+        step: 'month',
+        stepmode: 'backward',
+        count: 6,
+        label: '6m'
+    }, {
+        step: 'year',
+        stepmode: 'todate',
+        count: 1,
+        label: 'YTD'
+    }, {
+        step: 'year',
+        stepmode: 'backward',
+        count: 1,
+        label: '1y'
+    }, {
+        step: 'all',
+    }],
+};
+
 $(document).ready(function () {
     loadDashboard();
 });
@@ -64,13 +90,13 @@ function loadTeamInfo(elem) {
         document.getElementById("canvas").innerHTML = html
         document.getElementById("canvas-title").innerHTML = team
         data.team = team
-        loadWinLossPie(data);
-        loadEloPlot(team);
+        loadWinLossPie(data, 2015);
+        loadEloPlot(team, 2015);
     })
 }
 
 
-function loadEloPlot(team) {
+function loadEloPlot(team, season) {
     fetchAsync("http://127.0.0.1:5000/getTeamEloData?team=" + team).then(data => {
         let layout = {
             title: 'Trending records for each NBA Team',
@@ -81,9 +107,12 @@ function loadEloPlot(team) {
                 yref: 'paper'
             },
             xaxis: {
-                range: ["2010-01-01", "2022-03-01"],
-                autorange: false
+                title: 'Seasons',
             },
+            yaxis: {
+                fixedrange: true,
+                title: 'Elo Rating',
+            }
         };
 
         let plot = {
@@ -95,31 +124,36 @@ function loadEloPlot(team) {
             line: {
                 color: 'rgb(128, 0, 128)',
                 width: 1,
-                dash: '0px 5200000px'
+                dash: '0px 52000px'
             },
             isColored: false,
             totalMatches: 0,
             matchesWon: 0,
         };
 
+
           
-        Plotly.plot('elo-plot', [plot], layout).then(function () {
-            return Plotly.animate('graph',
-                [{ data: [{ 'line.dash': '5200000px 0px' }] }],
+        Plotly.plot('elo-plot', [plot], layout, {displayModeBar: false}).then(function () {
+            return Plotly.animate('elo-plot',
+                [{ data: [{ 'line.dash': '5200px 0px' }] }],
                 {
-                    frame: { duration: 50000, redraw: false },
-                    transition: { duration: 50000 }
+                    frame: { duration: 5000, redraw: false },
+                    transition: { duration: 5000 }
                 }
             );
         });
+
+        layout.xaxis.rangeselector = selectorOptions
+        layout.xaxis.rangeslider = {}
+        Plotly.plot('elo-plot', [plot], layout)
     })
 
 }
 
-function loadWinLossPie(data) {
+function loadWinLossPie(data, season) {
     let pieData = [{
         values: [data.won, data.total - data.won],
-        labels: ['Matches won', 'Matches lost'],
+        labels: ['Matches won - ' + data.won, 'Matches lost - ' + (data.total - data.won)],
         marker: {
             colors: ['rgb(75, 159, 75)', 'rgb(195, 83, 57)']
         },
@@ -127,12 +161,12 @@ function loadWinLossPie(data) {
     }];
 
     let pieLayout = {
-        title: 'Win/Loss stats for Team ' + data.team,
+        title: 'Win/Loss % - Season ' + season ,
         height: 400,
-        width: 500
+        width: 500,
     };
 
-    Plotly.newPlot('win-loss-pie', pieData, pieLayout);
+    Plotly.newPlot('win-loss-pie', pieData, pieLayout, {displayModeBar: false});
 }
 
 function seasonDropDown() {
@@ -164,8 +198,12 @@ function loadEloAnalysis() {
             },
             xaxis: {
                 range: ["2010-01-01", "2022-03-01"],
-                autorange: false
+                autorange: false,
+                title: 'Seasons',
             },
+            yaxis: {
+                title: 'Elo Rating',
+            }
         };
 
         let plot = {
@@ -176,7 +214,8 @@ function loadEloAnalysis() {
             connectgaps: true,
             line: {
                 color: 'rgb(128, 0, 128)',
-                width: 1
+                width: 1,
+                dash: '0px 52000px'
             },
             isColored: false,
             totalMatches: 0,
@@ -192,8 +231,9 @@ function loadEloAnalysis() {
             plotCopy.y = elo[team].y;
             plotCopy.name = team;
 
-            if (i > 4) {
+            if (i >= 4) {
                 plotCopy.visible = 'legendonly'
+                plotCopy.line.dash = '5200px 0px'
             } else {
                 selectedTeams.add(team)
             }
@@ -201,7 +241,20 @@ function loadEloAnalysis() {
             allPlots.push(plotCopy)
             i++;
         });
-        Plotly.newPlot('all-elo-plot', allPlots, layout);
+
+        Plotly.plot('all-elo-plot', allPlots, layout, {displayModeBar: false}).then(function () {
+            return Plotly.animate('all-elo-plot',
+                [{ data: [{ 'line.dash': '5200px 0px' }, { 'line.dash': '5200px 0px' }, { 'line.dash': '5200px 0px' }, { 'line.dash': '5200px 0px' }] }],
+                {
+                    frame: { duration: 5000, redraw: false },
+                    transition: { duration: 5000 }
+                }
+            );
+        });
+
+        layout.xaxis.rangeselector = selectorOptions
+        layout.xaxis.rangeslider = {}
+        Plotly.plot('all-elo-plot', allPlots, layout)
         document.getElementById("canvas-title").innerHTML = "In-Depth Analysis"
     })
 }
