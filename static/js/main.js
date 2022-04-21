@@ -131,9 +131,7 @@ function loadEloPlot(team, season) {
             matchesWon: 0,
         };
 
-
-          
-        Plotly.plot('elo-plot', [plot], layout, {displayModeBar: false}).then(function () {
+        Plotly.plot('elo-plot', [plot], layout, { displayModeBar: false }).then(function () {
             return Plotly.animate('elo-plot',
                 [{ data: [{ 'line.dash': '5200px 0px' }] }],
                 {
@@ -161,12 +159,12 @@ function loadWinLossPie(data, season) {
     }];
 
     let pieLayout = {
-        title: 'Win/Loss % - Season ' + season ,
+        title: 'Win/Loss % - Season ' + season,
         height: 400,
         width: 500,
     };
 
-    Plotly.newPlot('win-loss-pie', pieData, pieLayout, {displayModeBar: false});
+    Plotly.newPlot('win-loss-pie', pieData, pieLayout, { displayModeBar: false });
 }
 
 function seasonDropDown() {
@@ -242,7 +240,7 @@ function loadEloAnalysis() {
             i++;
         });
 
-        Plotly.plot('all-elo-plot', allPlots, layout, {displayModeBar: false}).then(function () {
+        Plotly.plot('all-elo-plot', allPlots, layout, { displayModeBar: false }).then(function () {
             return Plotly.animate('all-elo-plot',
                 [{ data: [{ 'line.dash': '5200px 0px' }, { 'line.dash': '5200px 0px' }, { 'line.dash': '5200px 0px' }, { 'line.dash': '5200px 0px' }] }],
                 {
@@ -255,6 +253,17 @@ function loadEloAnalysis() {
         layout.xaxis.rangeselector = selectorOptions
         layout.xaxis.rangeslider = {}
         Plotly.plot('all-elo-plot', allPlots, layout)
+        document.getElementById('all-elo-plot').on('plotly_legendclick', function (legendClickData) {
+
+            let team = legendClickData.data[legendClickData.curveNumber].name;
+
+            if (selectedTeams.has(team)) {
+                selectedTeams.delete(team)
+            } else {
+                selectedTeams.add(team)
+            }
+
+        });
         document.getElementById("canvas-title").innerHTML = "In-Depth Analysis"
     })
 }
@@ -390,8 +399,6 @@ function loadNextAnalysis() {
     })
 }
 
-//TODO - add on click for legends and update selected
-//TODO - add range slider to 2 line graphs
 /***************************************** */
 async function fetchAsync(url) {
     let response = await fetch(url);
