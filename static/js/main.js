@@ -76,8 +76,13 @@ function loadTeams() {
 
 function loadTeamInfo(elem, season = 2015) {
     let team = elem.id
-    let html = '<div class="row"><div class="col-md-4 col-lg-4 px-md-4">' + seasonDropDown(season)
-    fetchAsync("http://127.0.0.1:5000/getTeamInfo?team=" + team + "&season=2015").then(data => {
+    
+    getTeamInfo(team, season)
+}
+
+function getTeamInfo(team, season) {
+    let html = '<div class="row"><div class="col-md-4 col-lg-4 px-md-4">' + seasonDropDown(team, season)
+    fetchAsync("http://127.0.0.1:5000/getTeamInfo?team=" + team + "&season=" + season).then(data => {
         document.getElementById("canvas").innerHTML = ""
         html += '<div class="table-container"><table class="table table-hover"><tbody>'
         let i = 0;
@@ -94,7 +99,6 @@ function loadTeamInfo(elem, season = 2015) {
         loadEloPlot(team, season);
     })
 }
-
 
 function loadEloPlot(team, season) {
     fetchAsync("http://127.0.0.1:5000/getTeamEloData?team=" + team).then(data => {
@@ -165,13 +169,18 @@ function loadWinLossPie(data, season) {
     Plotly.newPlot('win-loss-pie', pieData, pieLayout, { displayModeBar: false });
 }
 
-function seasonDropDown(season = 2015) {
+function seasonDropDown(team, season = 2015) {
     let dropdown = '<div class="dropdown"><button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Season: ' + season + '</button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">'
     for (let year = 2010; year <= 2021; year++) {
-        dropdown += '<li><a class="dropdown-item" onclick="updateSeason(' + year + ')">' + year + '</a></li>'
+        dropdown += '<li><a class="dropdown-item" onclick="updateSeason(\'' + team + '\',' + year + ')">' + year + '</a></li>'
     }
     dropdown += '</ul></div>'
     return dropdown
+}
+
+function updateSeason(team, season) {
+    document.getElementById("dropdownMenuButton1").innerHTML = 'Season: ' + season;
+    getTeamInfo(team, season)
 }
 
 // TODO - make year selectable
