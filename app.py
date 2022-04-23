@@ -32,6 +32,11 @@ def getTeamEloData():
     result[i] = df[i].tolist()
 
   return result
+  
+@app.route('/getWinProbData')
+def getWinProbData():
+  df = dao.getWinProbData()
+  return df.to_json(orient='records')
 
 @app.route('/getAllElo')
 def getAllElo():

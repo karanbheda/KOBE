@@ -31,6 +31,10 @@ def getTeamEloData(team):
                             where team2 = \'' + team + '\'\
                             and season >= 2010 and season <= 2021', conn)
     return df
+    
+def getWinProbData():
+    df = pd.read_sql_query('SELECT * from nba_winprobs', conn)
+    return df
 
 def getPerformanceStats(team, season):
     df = pd.read_sql_query('select 1.0*sum(expected)/sum(total) y, 1.0*sum(actual)/sum(total) x \

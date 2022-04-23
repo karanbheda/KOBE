@@ -90,7 +90,7 @@ function getTeamInfo(team, season) {
             html += '<tr class="' + (match.score1 > match.score2 ? "success" : "danger") + '"><td>' + new Date(match.date).toDateString() + '</td><td>' + match.score1 + ' - ' + match.score2 + '</td><td>' + match.team + '</td></tr>'
         });
 
-        html += '</tbody></table></div></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div></div>'
+        html += '</tbody></table></div></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div><div id="min-by-min-plot"></div></div></div>'
 
         document.getElementById("canvas").innerHTML = html
         document.getElementById("canvas-title").innerHTML = team
@@ -98,6 +98,72 @@ function getTeamInfo(team, season) {
         loadWinLossPie(data, season);
         loadEloPlot(team, season);
     })
+}
+
+function loadMinByMinPlot() {
+    var data = {}
+    fetchAsync("http://127.0.0.1:5000/getWinProbData").then(raw_data => {
+        getDataForMinByMin(raw_data, data)
+
+        var list = []
+        Object.keys(data).forEach((k, idx) => {
+            list.push(data[k])
+        })
+
+        var layout = {
+            title: 'Minute by minute win probablitites for each NBA Team',
+            legend: {
+                y: 0.5,
+                traceorder: 'reversed',
+                font: { size: 16 },
+                yref: 'paper'
+            },
+            xaxis: {
+                range: ["0", "48"],
+                autorange: false
+            },
+            yaxis: {range: [0.0, 1.0]}
+        };
+
+        Plotly.newPlot('min-by-min-plot', list, layout);
+
+        let myPlot = document.getElementById('min-by-min-plot');
+    })
+}
+
+
+function getDataForMinByMin(rawData, data) {
+	let samplePlot = {
+		x: [],
+		y: [],
+		mode: 'lines',
+		name: '',
+		connectgaps: true,
+		line: {
+			color: 'rgb(128, 0, 128)',
+			width: 5
+		},
+		isColored: false,
+		visible: 'legendonly'
+	};
+	for (var r = 0; r < rawData.length; r++) {
+		var row = rawData[r]
+		let plotObj = JSON.parse(JSON.stringify(samplePlot))
+		for(var i = 1; i < 49; i++) {
+			plotObj.x.push(i)
+			plotObj.y.push(row['min'+i])
+			plotObj.name = row.team;
+
+			if (!plotObj.isColored) {
+				//plotObj.line.color = getColor(row.team.substring(0,3).toUpperCase());
+
+				//todo color
+				plotObj.line.color = 'blue';
+				plotObj.isColored = true;
+			}
+		}
+		data[row.team] = plotObj
+	}
 }
 
 function loadEloPlot(team, season) {
