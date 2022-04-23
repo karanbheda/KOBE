@@ -79,13 +79,13 @@ function loadTeamInfo(elem) {
     let html = '<div class="row"><div class="col-md-4 col-lg-4 px-md-4">' + seasonDropDown()
     fetchAsync("http://127.0.0.1:5000/getTeamInfo?team=" + team + "&season=2015").then(data => {
         document.getElementById("canvas").innerHTML = ""
-        html += '<ul class="list-group list-group-flush">'
+        html += '<table class="table table-hover"><tbody>'
         let i = 0;
         data.matches.forEach(match => {
-            html += '<li class="list-group-item">' + new Date(match.date).toDateString() + ' ' + match.score1 + ' - ' + match.score2 + ' ' + match.team + '</li>'
+            html += '<tr><td>' + new Date(match.date).toDateString() + '</td><td>' + match.score1 + ' - ' + match.score2 + '</td><td>' + match.team + '</td></tr>'
         });
 
-        html += '</ul></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div></div>'
+        html += '</tbody></table></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div></div>'
 
         document.getElementById("canvas").innerHTML = html
         document.getElementById("canvas-title").innerHTML = team
