@@ -97,6 +97,7 @@ function getTeamInfo(team, season) {
         data.team = team
         loadWinLossPie(data, season);
         loadEloPlot(team, season);
+		loadMinByMinPlot();
     })
 }
 
