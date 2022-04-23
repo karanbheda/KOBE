@@ -59,12 +59,12 @@ function loadTeams() {
         let html = ""
         let i = 0;
         teams.forEach(team => {
-            if (i % 9 == 0) {
+            if (i % 6 == 0) {
                 if (i != 0) { html += "</div>" }
                 html += "<div class=\"row\">"
             }
 
-            html += "<div class=\"col-md-1 col-lg-1 px-md-1 team-list-db\" id=\"" + team['team'] + "\" onclick=\"loadTeamInfo(" + team['team'] + ", 2015)\"><img class=\"img-circle team-icon-db\" src=\"../static/imgs/GSW.png\"/></div>"
+            html += "<div class=\"col-md-2 col-lg-2 px-md-2 team-list-db\" id=\"" + team['team'] + "\" onclick=\"loadTeamInfo(" + team['team'] + ", 2015)\"><img class=\"img-circle team-icon-db\" src=\"../static/imgs/" + team['team'] + ".png\"/></div>"
             i++;
         });
 

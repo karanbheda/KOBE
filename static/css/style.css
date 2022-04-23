@@ -101,15 +101,13 @@ ul.horizontal li a.active {
     margin-bottom: 2rem
 }
 
-.img-circle { border-radius: 50%; }
+.img-circle { border-radius: 0%; }
 
 .team-icon-db {
-    height: 10rem;
+    height: 15vh;
+    max-width: 10vw;
 }
 
-.team-list-db {
-    margin-left: 2rem;
-}
 
 .team-list-db:first-child {
     margin-left: 0px;
