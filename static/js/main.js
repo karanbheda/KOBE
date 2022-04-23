@@ -64,7 +64,7 @@ function loadTeams() {
                 html += "<div class=\"row\">"
             }
 
-            html += "<div class=\"col-md-1 col-lg-1 px-md-1 team-list-db\" id=\"" + team['team'] + "\" onclick=\"loadTeamInfo(" + team['team'] + ")\"><img class=\"img-circle team-icon-db\" src=\"../static/imgs/GSW.png\"/></div>"
+            html += "<div class=\"col-md-1 col-lg-1 px-md-1 team-list-db\" id=\"" + team['team'] + "\" onclick=\"loadTeamInfo(" + team['team'] + ", 2015)\"><img class=\"img-circle team-icon-db\" src=\"../static/imgs/GSW.png\"/></div>"
             i++;
         });
 
@@ -74,24 +74,24 @@ function loadTeams() {
     })
 }
 
-function loadTeamInfo(elem) {
+function loadTeamInfo(elem, season = 2015) {
     let team = elem.id
-    let html = '<div class="row"><div class="col-md-4 col-lg-4 px-md-4">' + seasonDropDown()
+    let html = '<div class="row"><div class="col-md-4 col-lg-4 px-md-4">' + seasonDropDown(season)
     fetchAsync("http://127.0.0.1:5000/getTeamInfo?team=" + team + "&season=2015").then(data => {
         document.getElementById("canvas").innerHTML = ""
-        html += '<table class="table table-hover"><tbody>'
+        html += '<div class="table-container"><table class="table table-hover"><tbody>'
         let i = 0;
         data.matches.forEach(match => {
-            html += '<tr><td>' + new Date(match.date).toDateString() + '</td><td>' + match.score1 + ' - ' + match.score2 + '</td><td>' + match.team + '</td></tr>'
+            html += '<tr class="' + (match.score1 > match.score2 ? "success" : "danger") + '"><td>' + new Date(match.date).toDateString() + '</td><td>' + match.score1 + ' - ' + match.score2 + '</td><td>' + match.team + '</td></tr>'
         });
 
-        html += '</tbody></table></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div></div>'
+        html += '</tbody></table></div></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div></div>'
 
         document.getElementById("canvas").innerHTML = html
         document.getElementById("canvas-title").innerHTML = team
         data.team = team
-        loadWinLossPie(data, 2015);
-        loadEloPlot(team, 2015);
+        loadWinLossPie(data, season);
+        loadEloPlot(team, season);
     })
 }
 
@@ -131,6 +131,8 @@ function loadEloPlot(team, season) {
             matchesWon: 0,
         };
 
+        layout.xaxis.rangeselector = selectorOptions
+        layout.xaxis.rangeslider = {}
         Plotly.plot('elo-plot', [plot], layout, { displayModeBar: false }).then(function () {
             return Plotly.animate('elo-plot',
                 [{ data: [{ 'line.dash': '5200px 0px' }] }],
@@ -140,10 +142,6 @@ function loadEloPlot(team, season) {
                 }
             );
         });
-
-        layout.xaxis.rangeselector = selectorOptions
-        layout.xaxis.rangeslider = {}
-        Plotly.plot('elo-plot', [plot], layout)
     })
 
 }
@@ -167,8 +165,8 @@ function loadWinLossPie(data, season) {
     Plotly.newPlot('win-loss-pie', pieData, pieLayout, { displayModeBar: false });
 }
 
-function seasonDropDown() {
-    let dropdown = '<div class="dropdown"><button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Season: 2015</button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">'
+function seasonDropDown(season = 2015) {
+    let dropdown = '<div class="dropdown"><button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Season: ' + season + '</button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">'
     for (let year = 2010; year <= 2021; year++) {
         dropdown += '<li><a class="dropdown-item" onclick="updateSeason(' + year + ')">' + year + '</a></li>'
     }
