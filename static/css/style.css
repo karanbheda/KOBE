@@ -108,7 +108,9 @@ ul.horizontal li a.active {
     max-width: 10vw;
 }
 
-
+.row.center {
+    text-align: center;
+}
 .team-list-db:first-child {
     margin-left: 0px;
 }

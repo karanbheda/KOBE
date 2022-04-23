@@ -61,7 +61,7 @@ function loadTeams() {
         teams.forEach(team => {
             if (i % 6 == 0) {
                 if (i != 0) { html += "</div>" }
-                html += "<div class=\"row\">"
+                html += "<div class=\"row center\">"
             }
 
             html += "<div class=\"col-md-2 col-lg-2 px-md-2 team-list-db\" id=\"" + team['team'] + "\" onclick=\"loadTeamInfo(" + team['team'] + ", 2015)\"><img class=\"img-circle team-icon-db\" src=\"../static/imgs/" + team['team'] + ".png\"/></div>"
@@ -249,8 +249,6 @@ function updateSeason(team, season) {
     getTeamInfo(team, season)
 }
 
-// TODO - make year selectable
-
 /************************************************** */
 
 /************ Analysis **********************/
@@ -341,9 +339,9 @@ function loadEloAnalysis() {
     })
 }
 
-function loadNextAnalysis() {
-    fetchAsync("http://127.0.0.1:5000/getPerformanceStats?season=2015&teams=" + Array.from(selectedTeams).join(",")).then(perfData => {
-        document.getElementById("canvas").innerHTML = '<div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="perf-plot"></div></div></div><div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="minute-plot"></div></div></div>'
+function loadNextAnalysis(season = 2015) {
+    fetchAsync("http://127.0.0.1:5000/getPerformanceStats?season=" + season + "&teams=" + Array.from(selectedTeams).join(",")).then(perfData => {
+        document.getElementById("canvas").innerHTML = seasonDropDown2() + '<div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="perf-plot"></div></div></div><div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="minute-plot"></div></div></div>'
 
         let layout = {
             xaxis: {
@@ -471,6 +469,21 @@ function loadNextAnalysis() {
         Plotly.newPlot('perf-plot', [plot], layout);
     })
 }
+
+function seasonDropDown2(season = 2015) {
+    let dropdown = '<div class="dropdown"><button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">Season: ' + season + '</button><ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">'
+    for (let year = 2010; year <= 2021; year++) {
+        dropdown += '<li><a class="dropdown-item" onclick="updateSeason2(' + year + ')">' + year + '</a></li>'
+    }
+    dropdown += '</ul></div>'
+    return dropdown
+}
+
+function updateSeason2(season) {
+    document.getElementById("dropdownMenuButton1").innerHTML = 'Season: ' + season;
+    loadNextAnalysis(season)
+}
+
 
 /***************************************** */
 async function fetchAsync(url) {
