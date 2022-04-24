@@ -55,10 +55,26 @@ function playerAnalysis() {
     $(".active").removeClass("active")
     $("#player-analysis").addClass("active");
 }
+
+function load_pca_viz(){
+    pca_viz_first();
+    $(".active").removeClass("active")
+    $("#menu-viz").addClass("active");
+}
 /***********************/
 
 
 /***********DASHBOARD ************************/
+function pca_viz_first(){
+    fetchAsync("http:///127.0.0.1:5000/pca_viz_1").then(response=>{
+        console.log(response)
+        // document.getElementById("canvas").innerHTML = ""
+        // let html = ""
+        // html+='<div id="pca_viz"></div>'
+        // Plotly.newPlot('pca_viz',data)
+        // let pl=document.getElementById('pca_viz')
+    })
+}
 function loadTeams() {
     fetchAsync("http://127.0.0.1:5000/getTeams").then(teams => {
         document.getElementById("canvas").innerHTML = ""

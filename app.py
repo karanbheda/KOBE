@@ -77,6 +77,26 @@ def getPlayerAnalysis():
 
   return data
 
+@app.route('/pca_viz_1')
+def pca_viz_1():
+  cluster0=dao.get_modified_df_players()[0]
+  cluster1=dao.get_modified_df_players()[1]
+  cluster2=dao.get_modified_df_players()[2]
+  trace1=go.Scatter(x=cluster0['PC1_1d'],y=cluster0['dummy'],mode='markers',
+    name='Cluster 0',marker=dict(color='rgba(255,128,255,0.8)'),text=None)
+  trace2=go.Scatter(x=cluster1['PC1_1d'],y=cluster1['dummy'],mode='markers',
+    name='Cluster 1',marker=dict(color='rgba(255,128,2,0.8)'),text=None)
+  trace3=go.Scatter(x=cluster2['PC1_1d'],y=cluster2['dummy'],mode='markers',
+    name='Cluster 2',marker=dict(color='rgba(0,128,200,0.8)'),text=None)
+  data=[trace1,trace2,trace3]
+  title='Visualizing Clusters in one dimension using PCA'
+  layout=dict(title=title,xaxis=dict(title='PC1',ticklen=5,zeroline=False),
+    yaxis=dict(title='',ticklen=5,zeroline=False))
+  fig=dict(data=data,layout=layout)
+  graphJSON=json.dumps(fig,cls=plotly.utils.PlotlyJSONEncoder)
+  x='{"name":"John","age":30,"city":"New York"}'
+  y=json.loads(x)
+  return y
 
 @app.route('/')
 def home():
