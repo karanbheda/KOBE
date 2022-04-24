@@ -96,14 +96,14 @@ function getTeamInfo(team, season) {
             html += '<tr class="' + (match.score1 > match.score2 ? "success" : "danger") + '"><td>' + new Date(match.date).toDateString() + '</td><td>' + match.score1 + ' - ' + match.score2 + '</td><td>' + match.team + '</td></tr>'
         });
 
-        html += '</tbody></table></div></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div><div id="min-by-min-plot"></div></div></div>'
+        html += '</tbody></table></div></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div><div class="row"><div id="min-by-min-plot"></div></div></div>'
 
         document.getElementById("canvas").innerHTML = html
         document.getElementById("canvas-title").innerHTML = team
         data.team = team
         loadWinLossPie(data, season);
         loadEloPlot(team, season);
-        //loadMinByMinPlot();
+        setTimeout(() => loadMinByMinPlot(), 1000);
     })
 }
 
