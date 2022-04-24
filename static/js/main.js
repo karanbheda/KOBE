@@ -49,6 +49,12 @@ function loadAnalysis() {
     $(".active").removeClass("active")
     $("#menu-analysis").addClass("active");
 }
+
+function playerAnalysis() {
+    loadPlayerAnalysis();
+    $(".active").removeClass("active")
+    $("#player-analysis").addClass("active");
+}
 /***********************/
 
 
@@ -76,7 +82,7 @@ function loadTeams() {
 
 function loadTeamInfo(elem, season = 2015) {
     let team = elem.id
-    
+
     getTeamInfo(team, season)
 }
 
@@ -97,7 +103,7 @@ function getTeamInfo(team, season) {
         data.team = team
         loadWinLossPie(data, season);
         loadEloPlot(team, season);
-		loadMinByMinPlot();
+        //loadMinByMinPlot();
     })
 }
 
@@ -123,7 +129,7 @@ function loadMinByMinPlot() {
                 range: ["0", "48"],
                 autorange: false
             },
-            yaxis: {range: [0.0, 1.0]}
+            yaxis: { range: [0.0, 1.0] }
         };
 
         Plotly.newPlot('min-by-min-plot', list, layout);
@@ -134,37 +140,37 @@ function loadMinByMinPlot() {
 
 
 function getDataForMinByMin(rawData, data) {
-	let samplePlot = {
-		x: [],
-		y: [],
-		mode: 'lines',
-		name: '',
-		connectgaps: true,
-		line: {
-			color: 'rgb(128, 0, 128)',
-			width: 5
-		},
-		isColored: false,
-		visible: 'legendonly'
-	};
-	for (var r = 0; r < rawData.length; r++) {
-		var row = rawData[r]
-		let plotObj = JSON.parse(JSON.stringify(samplePlot))
-		for(var i = 1; i < 49; i++) {
-			plotObj.x.push(i)
-			plotObj.y.push(row['min'+i])
-			plotObj.name = row.team;
+    let samplePlot = {
+        x: [],
+        y: [],
+        mode: 'lines',
+        name: '',
+        connectgaps: true,
+        line: {
+            color: 'rgb(128, 0, 128)',
+            width: 5
+        },
+        isColored: false,
+        visible: 'legendonly'
+    };
+    for (var r = 0; r < rawData.length; r++) {
+        var row = rawData[r]
+        let plotObj = JSON.parse(JSON.stringify(samplePlot))
+        for (var i = 1; i < 49; i++) {
+            plotObj.x.push(i)
+            plotObj.y.push(row['min' + i])
+            plotObj.name = row.team;
 
-			if (!plotObj.isColored) {
-				//plotObj.line.color = getColor(row.team.substring(0,3).toUpperCase());
+            if (!plotObj.isColored) {
+                //plotObj.line.color = getColor(row.team.substring(0,3).toUpperCase());
 
-				//todo color
-				plotObj.line.color = 'blue';
-				plotObj.isColored = true;
-			}
-		}
-		data[row.team] = plotObj
-	}
+                //todo color
+                plotObj.line.color = 'blue';
+                plotObj.isColored = true;
+            }
+        }
+        data[row.team] = plotObj
+    }
 }
 
 function loadEloPlot(team, season) {
@@ -485,6 +491,23 @@ function updateSeason2(season) {
     loadNextAnalysis(season)
 }
 
+/**************************  Player Analysis ***************************** */
+function loadPlayerAnalysis() {
+    document.getElementById("canvas").innerHTML = '<div id="3d-graph"></div>'
+    const graph_div = document.getElementById("3d-graph");
+    const graph = ForceGraph3D()(graph_div)
+        // loading the nodes and links dataset in JSON format
+        .jsonUrl('http://127.0.0.1:5000/getPlayerAnalysis')
+        // Represent value of each edge by its thickness.
+        .linkWidth(link => link.value)
+        // Color nodes according their peel value.
+        .nodeAutoColorBy('raptor_box_total')
+        //Encode nodes’ diversity by their size.
+        .nodeVal('raptor_onoff_offense')
+        // When hovering on a node, show a tooltip contains its name, degree, peel, pagerank, diversity and betweenness.
+        .nodeLabel(node => `name= ${node.player_name}<br/> raptor_box_offense= ${node.raptor_box_offense}<br/> raptor_box_defense= ${node.raptor_box_defense}`);
+    document.getElementById("canvas-title").innerHTML = "Player Analysis"
+}
 
 /***************************************** */
 async function fetchAsync(url) {

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import pandas as pd
 import dao
+import json
 
 app = Flask(__name__)
 
@@ -63,6 +64,18 @@ def getPerformanceStats():
     result[team] = elo
   
   return result
+
+@app.route('/getPlayerAnalysis')
+def getPlayerAnalysis():
+  f = open('player.json')
+ 
+  # returns JSON object as
+  # a dictionary
+  data = json.load(f)
+
+  f.close()
+
+  return data
 
 
 @app.route('/')
