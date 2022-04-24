@@ -2,6 +2,7 @@ from config import conn
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
+import numpy as np
 
 def getWinDeltaData():
     df = pd.read_sql_query('SELECT * from nba_elo', conn)
@@ -51,7 +52,7 @@ def getPerformanceStats(team, season):
     return df
 
 def get_modified_df_players():
-    df=pd.read_sql_query('SELECT * FROM modern_RAPTOR_by_team',conn)
+    df=pd.read_sql_query('SELECT * FROM modern_RAPTOR_by_team order by player_id',conn)
     X=df.copy()
     X=X.dropna()
     for i in ['war_total','war_reg_season','war_playoffs','predator_offense','predator_defense','predator_total','pace_impact']:

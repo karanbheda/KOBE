@@ -67,12 +67,11 @@ function load_pca_viz(){
 /***********DASHBOARD ************************/
 function pca_viz_first(){
     fetchAsync("http:///127.0.0.1:5000/pca_viz_1").then(response=>{
-        console.log(response)
-        // document.getElementById("canvas").innerHTML = ""
-        // let html = ""
-        // html+='<div id="pca_viz"></div>'
-        // Plotly.newPlot('pca_viz',data)
-        // let pl=document.getElementById('pca_viz')
+        document.getElementById("canvas").innerHTML = "<div id='plotly-timeseries'></div>"
+
+        Plotly.plot('plotly-timeseries', response.data, response.layout);
+
+        document.getElementById("canvas-title").innerHTML = "PCA"
     })
 }
 function loadTeams() {

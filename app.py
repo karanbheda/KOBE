@@ -2,6 +2,9 @@ from flask import Flask, render_template, request
 import pandas as pd
 import dao
 import json
+import plotly
+import plotly.graph_objs as go
+from plotly.offline import download_plotlyjs, init_notebook_mode, plot, iplot
 
 app = Flask(__name__)
 
@@ -79,9 +82,8 @@ def getPlayerAnalysis():
 
 @app.route('/pca_viz_1')
 def pca_viz_1():
-  cluster0=dao.get_modified_df_players()[0]
-  cluster1=dao.get_modified_df_players()[1]
-  cluster2=dao.get_modified_df_players()[2]
+  [cluster0, cluster1, cluster2] = dao.get_modified_df_players()
+  
   trace1=go.Scatter(x=cluster0['PC1_1d'],y=cluster0['dummy'],mode='markers',
     name='Cluster 0',marker=dict(color='rgba(255,128,255,0.8)'),text=None)
   trace2=go.Scatter(x=cluster1['PC1_1d'],y=cluster1['dummy'],mode='markers',
@@ -94,9 +96,7 @@ def pca_viz_1():
     yaxis=dict(title='',ticklen=5,zeroline=False))
   fig=dict(data=data,layout=layout)
   graphJSON=json.dumps(fig,cls=plotly.utils.PlotlyJSONEncoder)
-  x='{"name":"John","age":30,"city":"New York"}'
-  y=json.loads(x)
-  return y
+  return graphJSON
 
 @app.route('/')
 def home():
