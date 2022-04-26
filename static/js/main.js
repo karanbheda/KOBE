@@ -114,7 +114,7 @@ function getTeamInfo(team, season) {
             html += '<tr class="' + (match.score1 > match.score2 ? "success" : "danger") + '"><td>' + new Date(match.date).toDateString() + '</td><td>' + match.score1 + ' - ' + match.score2 + '</td><td>' + match.team + '</td></tr>'
         });
 
-        html += '</tbody></table></div></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div><div class="row"><div id="min-by-min-plot"></div></div></div>'
+        html += '</tbody></table></div></div><div class="col-md- col-lg-8 px-md-8"><div id="win-loss-pie"></div><div id="elo-plot"></div></div></div>'
 
         document.getElementById("canvas").innerHTML = html
         document.getElementById("canvas-title").innerHTML = team
@@ -150,9 +150,7 @@ function loadMinByMinPlot() {
             yaxis: { range: [0.0, 1.0] }
         };
 
-        Plotly.newPlot('min-by-min-plot', list, layout);
-
-        let myPlot = document.getElementById('min-by-min-plot');
+        Plotly.newPlot('minute-plot', list, layout);
     })
 }
 
@@ -492,6 +490,8 @@ function loadNextAnalysis(season = 2015) {
             plot.text.push(team)
         });
         Plotly.newPlot('perf-plot', [plot], layout);
+    }).then(success => {
+        loadMinByMinPlot()
     })
 }
 
