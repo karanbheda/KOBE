@@ -153,3 +153,10 @@ g.slice > path.surface {
 .danger:hover {
     background-color:#ebcccc
 }
+
+.nextButton {
+    background: #2470dc;
+    color: white;
+    width: 25%;
+    margin: auto;
+}

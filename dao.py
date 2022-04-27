@@ -40,13 +40,13 @@ def getWinProbData():
     return df
 
 def getPerformanceStats(team, season):
-    df = pd.read_sql_query('select 1.0*sum(expected)/sum(total) y, 1.0*sum(actual)/sum(total) x \
+    df = pd.read_sql_query('select 1.0*sum(expected)/sum(total) y, 1.0*sum(actual)/sum(total) x, max(elo) elo \
                             from \
-                            (select count(*) total, sum(case when elo_prob1 > elo_prob2 then 1 else 0 end) expected, sum(case when score1 > score2 then 1 else 0 end) actual \
+                            (select count(*) total, sum(case when elo_prob1 > elo_prob2 then 1 else 0 end) expected, sum(case when score1 > score2 then 1 else 0 end) actual, max(elo1_post) elo \
                             from nba_elo \
                             where team1 = \'' + team + '\' and season = ' + season + ' \
                             union \
-                            select count(*) total, sum(case when elo_prob2 > elo_prob1 then 1 else 0 end) expected, sum(case when score2 > score1 then 1 else 0 end) actual \
+                            select count(*) total, sum(case when elo_prob2 > elo_prob1 then 1 else 0 end) expected, sum(case when score2 > score1 then 1 else 0 end) actual, max(elo2_post) elo \
                             from nba_elo \
                             where team2 = \'' + team + '\' and season = ' + season + ') A', conn)
     return df

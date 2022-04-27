@@ -24,6 +24,39 @@ let selectorOptions = {
     }],
 };
 
+let teamColor = {
+    "ATL": "Red",
+    "BOS": "Green",
+    "BRK": "Gray",
+    "CHI": "Maroon",
+    "CHO": "Blue",
+    "CLE": "Black",
+    "DAL": "Turquoise",
+    "DEN": "Yellow",
+    "DET": "Silver",
+    "GSW": "Gold",
+    "HOU": "Crimson",
+    "IND": "Goldenrod",
+    "LAC": "Pink",
+    "LAL": "Purple",
+    "MEM": "Navy",
+    "MIA": "DarkRed",
+    "MIL": "DarkGreen",
+    "MIN": "Lime",
+    "NOP": "Bisque",
+    "NYK": "Orange",
+    "OKC": "LightGrey",
+    "ORL": "MidnightBlue",
+    "PHI": "DodgerBlue",
+    "PHO": "OrangeRed",
+    "POR": "Coral",
+    "SAC": "Olive",
+    "SAS": "DarkCyan",
+    "TOR": "Cyan",
+    "UTA": "DarkSlateGray",
+    "WAS": "Plum"
+}
+
 $(document).ready(function () {
     loadDashboard();
 });
@@ -121,7 +154,7 @@ function getTeamInfo(team, season) {
         data.team = team
         loadWinLossPie(data, season);
         loadEloPlot(team, season);
-        setTimeout(() => loadMinByMinPlot(), 1000);
+        //setTimeout(() => loadMinByMinPlot(), 1000);
     })
 }
 
@@ -215,7 +248,7 @@ function loadEloPlot(team, season) {
             name: team,
             connectgaps: true,
             line: {
-                color: 'rgb(128, 0, 128)',
+                color: teamColor[team],
                 width: 1,
                 dash: '0px 52000px'
             },
@@ -278,7 +311,7 @@ function updateSeason(team, season) {
 let selectedTeams = new Set()
 function loadEloAnalysis() {
     fetchAsync("http://127.0.0.1:5000/getAllElo").then(elo => {
-        document.getElementById("canvas").innerHTML = '<div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="all-elo-plot"></div></div><button type="button" class="btn btn-default" onclick="loadNextAnalysis()">Next</button></div>'
+        document.getElementById("canvas").innerHTML = '<div class="row"><div class="col-md-12 col-lg-12 px-md-12"><div id="all-elo-plot"></div></div><button type="button" class="btn btn-default nextButton" onclick="loadNextAnalysis()">Next</button></div>'
 
         let layout = {
             title: 'Trending records for each NBA Team',
@@ -322,6 +355,7 @@ function loadEloAnalysis() {
             plotCopy.x = elo[team].x;
             plotCopy.y = elo[team].y;
             plotCopy.name = team;
+            plotCopy.line.color = teamColor[team];
 
             if (i >= 4) {
                 plotCopy.visible = 'legendonly'
@@ -479,7 +513,7 @@ function loadNextAnalysis(season = 2015) {
             },
             marker: {
                 size: 12,
-                color: ["Red", "Gray", "Green", "Blue", "Maroon", "Black", "Turquoise", "Yellow", "Silver", "Gold", "Crimson", "Goldenrod", "Pink", "Purple", "Navy", "DarkRed", "DarkGreen", "Lime", "Bisque", "Orange", "LightGrey", "MidnightBlue", "DodgerBlue", "OrangeRed", "Coral", "Olive", "DarkCyan", "Cyan", "DarkSlateGray", "Plum"],
+                color: [],
                 colorscale: 'Jet',
             }
         };
@@ -488,6 +522,7 @@ function loadNextAnalysis(season = 2015) {
             plot.x.push(perfData[team].x)
             plot.y.push(perfData[team].y)
             plot.text.push(team)
+            plot.marker.color.push(teamColor[team])
         });
         Plotly.newPlot('perf-plot', [plot], layout);
     }).then(success => {
