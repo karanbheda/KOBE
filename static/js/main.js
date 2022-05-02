@@ -214,7 +214,7 @@ function getDataForMinByMin(rawData, data) {
                 //plotObj.line.color = getColor(row.team.substring(0,3).toUpperCase());
 
                 //todo color
-                plotObj.line.color = 'blue';
+                plotObj.line.color = teamColor[row.team];
                 plotObj.isColored = true;
             }
         }
@@ -402,10 +402,12 @@ function loadNextAnalysis(season = 2015) {
 
         let layout = {
             xaxis: {
-                range: [0, 1]
+                range: [0, 1],
+                title: 'Actual Performance'
             },
             yaxis: {
-                range: [0.05, 0.95]
+                range: [0.05, 0.95],
+                title: 'Expected Performance'
             },
             legend: {
                 y: 0.5,
